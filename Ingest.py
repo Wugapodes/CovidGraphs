@@ -1,14 +1,32 @@
 import pandas as pd
 import pycountry
 import subprocess
+import pywikibot
+
+site = pywikibot.Site()
+dataToPageCorrespondence = {
+	'data/csse_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Confirmed covid cases-csv',
+	'data/csse_Daily_New_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Daily confirmed covid cases-csv',
+	'data/csse_deaths_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Deaths by country-csv',
+	'data/csse_Daily_New_deaths_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Daily deaths by country-csv',
+	'data/csse_global_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/global Confirmed covid cases by date-csv',
+	'data/csse_global_deaths_by_date_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Cumulative deaths by date-csv'
+}
+
+def writeDataPage( site, dataFileName, pageName ):
+	with open(dataFileName,'r') as f:
+		data = f.read()
+	page = pywikibot.Page(site, pageName)
+	page.text = data
+	page.save('Updating COVID-19 data from CSSEGISandData/COVID-19 repository.')
 
 # Set data URLs
 confirmedURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv'
 deathsURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
 
 # Update local files
-pd.read_csv(confirmedURL).to_csv('/home/cj/Desktop/Projects/Wikipedia/CovidGraphs/data/csse_time_series_19-covid-Confirmed.csv', index=False)
-pd.read_csv(deathsURL).to_csv('/home/cj/Desktop/Projects/Wikipedia/CovidGraphs/data/csse_time_series_19-covid-Deaths.csv', index=False)
+pd.read_csv(confirmedURL).to_csv('data/csse_time_series_19-covid-Confirmed.csv', index=False)
+pd.read_csv(deathsURL).to_csv('data/csse_time_series_19-covid-Deaths.csv', index=False)
 
 # Run r script to clean it up
 subprocess.call('./dataIngest.R')
@@ -121,11 +139,5 @@ for i in range(1,len(cols)):
 
 deathsDaily.to_csv('data/csse_Daily_New_deaths_by_country_zero_padded.csv',index=False)
 
-dateArray = []
-for date in globaldeathsRaw["date"]:
-	dateFormatted = '/'.join([x.zfill(2) for x in date.split('/')])
-	dateArray.append(dateFormatted)
-
-globaldeathsRaw["date"] = dateArray
-
-globaldeathsRaw.to_csv('data/csse_global_deaths_by_date_zero_padded.csv',index=False)
+for k,v in dataToPageCorrespondence.items():
+	writeDataPage( site, k, v )

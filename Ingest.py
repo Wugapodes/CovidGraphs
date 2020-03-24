@@ -14,7 +14,8 @@ dataToPageCorrespondence = {
 }
 
 def writeDataPage( site, dataFileName, pageName ):
-	with open(dataFileName,'r') as f:
+	prefix = '/data/project/wugbot/CovidGraphs/'
+	with open(prefix+dataFileName,'r') as f:
 		data = f.read()
 	page = pywikibot.Page(site, pageName)
 	page.text = data
@@ -26,7 +27,7 @@ def formatDates( columns ):
 		if key == 'Country':
 			dateArray.append(key)
 			continue
-		dateFormatted = zeroPad( date )
+		dateFormatted = zeroPad( key )
 		dateArray.append(dateFormatted)
 	return dateArray
 
@@ -59,6 +60,14 @@ def getCountryCodes(data):
 
 	idArray = [countryCodes[x] for x in data["Country"]]
 	return idArray
+
+def perDiem( rawData ):
+	cols = [x for x in rawData.columns if x not in ['Country', 'id'] ]
+	confirmedDaily = pd.DataFrame({'Country': rawData['Country'], 'id': rawData['id']})
+	for i in range(1,len(cols)):
+		newDay = cols[i]
+		oldDay = cols[i-1]
+		confirmedDaily[newDay] = confirmedRaw[newDay] - confirmedRaw[oldDay]
 
 # Set data URLs
 confirmedURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
@@ -107,7 +116,7 @@ deathsRaw['id'] = getCountryCodes(deathsRaw)
 
 deathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country_zero_padded.csv',index=False)
 
-globaldeathsRaw = pd.read_csv('data/csse_global_deaths_by_date.csv')
+globaldeathsRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date.csv')
 
 
 globaldeathsRaw["date"] = formatShortDates( globaldeathsRaw["date"] )

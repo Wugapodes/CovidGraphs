@@ -1,8 +1,8 @@
-#!/usr/bin/Rscript
-library(tidyverse)
+#!/data/project/wugbot/local/bin/Rscript
+library(dplyr)
 
 getwd()
-confirmed.raw = read_csv('data/csse_time_series_19-covid-Confirmed.csv')
+confirmed.raw = read.csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Confirmed.csv')
 
 confirmed.consolidated = confirmed.raw %>%
   select(-Lat,-Long,-`Province/State`)%>%
@@ -17,10 +17,10 @@ confirmed.global = confirmed.dates %>%
   group_by(date)%>%
   summarize_all(sum)
 
-write_csv(confirmed.global, 'data/csse_global_confirmed_cases_by_date.csv')
-write_csv(confirmed.consolidated,'data/csse_Confirmed_by_country.csv')
+write_csv(confirmed.global, '/data/project/wugbot/CovidGraphs/data/csse_global_confirmed_cases_by_date.csv')
+write_csv(confirmed.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country.csv')
 
-deaths.raw = read_csv('data/csse_time_series_19-covid-Deaths.csv')
+deaths.raw = read.csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Deaths.csv')
 
 deaths.consolidated = deaths.raw %>%
   select(-Lat,-Long,-`Province/State`)%>%
@@ -35,5 +35,5 @@ deaths.global = deaths.dates %>%
   group_by(date)%>%
   summarize_all(sum)
 
-write_csv(deaths.global, 'data/csse_global_deaths_by_date.csv')
-write_csv(deaths.consolidated,'data/csse_deaths_by_country.csv')
+write_csv(deaths.global, '/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date.csv')
+write_csv(deaths.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country.csv')

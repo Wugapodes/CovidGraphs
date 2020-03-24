@@ -25,14 +25,14 @@ confirmedURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master
 deathsURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
 
 # Update local files
-pd.read_csv(confirmedURL).to_csv('data/csse_time_series_19-covid-Confirmed.csv', index=False)
-pd.read_csv(deathsURL).to_csv('data/csse_time_series_19-covid-Deaths.csv', index=False)
+pd.read_csv(confirmedURL).to_csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Confirmed.csv', index=False)
+pd.read_csv(deathsURL).to_csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Deaths.csv', index=False)
 
 # Run r script to clean it up
-subprocess.call('./dataIngest.R')
+subprocess.call('/data/project/wugbot/CovidGraphs/dataIngest.R')
 
 # Confirmed
-confirmedRaw = pd.read_csv('data/csse_Confirmed_by_country.csv')
+confirmedRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country.csv')
 dateArray = []
 for key in confirmedRaw.columns:
 	if key == 'Country':
@@ -62,7 +62,7 @@ for country in set(confirmedRaw["Country"]):
 idArray = [countryCodes[x] for x in confirmedRaw["Country"]]
 confirmedRaw['id'] = idArray
 
-confirmedRaw.to_csv('data/csse_Confirmed_by_country_zero_padded.csv',index=False)
+confirmedRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country_zero_padded.csv',index=False)
 
 # New cases per day
 cols = [x for x in confirmedRaw.columns if x not in ['Country', 'id'] ]
@@ -72,11 +72,11 @@ for i in range(1,len(cols)):
 	oldDay = cols[i-1]
 	confirmedDaily[newDay] = confirmedRaw[newDay] - confirmedRaw[oldDay]
 
-confirmedDaily.to_csv('data/csse_Daily_New_Confirmed_by_country_zero_padded.csv',index=False)
+confirmedDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_Confirmed_by_country_zero_padded.csv',index=False)
 
 # Global totals by date
 
-globalConfirmedRaw = pd.read_csv('data/csse_global_confirmed_cases_by_date.csv')
+globalConfirmedRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_global_confirmed_cases_by_date.csv')
 dateArray = []
 for date in globalConfirmedRaw["date"]:
 	dateFormatted = '/'.join([x.zfill(2) for x in date.split('/')])
@@ -84,10 +84,10 @@ for date in globalConfirmedRaw["date"]:
 
 globalConfirmedRaw["date"] = dateArray
 
-globalConfirmedRaw.to_csv('data/csse_global_Confirmed_by_country_zero_padded.csv',index=False)
+globalConfirmedRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_global_Confirmed_by_country_zero_padded.csv',index=False)
 
 # Deaths
-deathsRaw = pd.read_csv('data/csse_deaths_by_country.csv')
+deathsRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country.csv')
 dateArray = []
 for key in deathsRaw.columns:
 	if key == 'Country':
@@ -117,7 +117,7 @@ for country in set(deathsRaw["Country"]):
 idArray = [countryCodes[x] for x in deathsRaw["Country"]]
 deathsRaw['id'] = idArray
 
-deathsRaw.to_csv('data/csse_deaths_by_country_zero_padded.csv',index=False)
+deathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country_zero_padded.csv',index=False)
 
 globaldeathsRaw = pd.read_csv('data/csse_global_deaths_by_date.csv')
 dateArray = []
@@ -127,7 +127,7 @@ for date in globaldeathsRaw["date"]:
 
 globaldeathsRaw["date"] = dateArray
 
-globaldeathsRaw.to_csv('data/csse_global_deaths_by_date_zero_padded.csv',index=False)
+globaldeathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date_zero_padded.csv',index=False)
 
 # New deaths per day
 cols = [x for x in deathsRaw.columns if x not in ['Country', 'id'] ]
@@ -137,7 +137,7 @@ for i in range(1,len(cols)):
 	oldDay = cols[i-1]
 	deathsDaily[newDay] = deathsRaw[newDay] - deathsRaw[oldDay]
 
-deathsDaily.to_csv('data/csse_Daily_New_deaths_by_country_zero_padded.csv',index=False)
+deathsDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_deaths_by_country_zero_padded.csv',index=False)
 
 for k,v in dataToPageCorrespondence.items():
 	writeDataPage( site, k, v )

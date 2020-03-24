@@ -3,6 +3,7 @@ import pycountry
 import subprocess
 import pywikibot
 
+live = 1
 site = pywikibot.Site()
 dataToPageCorrespondence = {
 	'data/csse_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Confirmed covid cases-csv',
@@ -62,12 +63,13 @@ def getCountryCodes(data):
 	return idArray
 
 def perDiem( rawData ):
-	cols = [x for x in rawData.columns if x not in ['Country', 'id'] ]
-	confirmedDaily = pd.DataFrame({'Country': rawData['Country'], 'id': rawData['id']})
+	cols = [x for x in rawData.columns if x not in ['Country', 'id', 'Unnamed: 0'] ]
+	daily = pd.DataFrame({'Country': rawData['Country'], 'id': rawData['id']})
 	for i in range(1,len(cols)):
 		newDay = cols[i]
 		oldDay = cols[i-1]
-		confirmedDaily[newDay] = confirmedRaw[newDay] - confirmedRaw[oldDay]
+		daily[newDay] = rawData[newDay] - rawData[oldDay]
+	return daily
 
 # Set data URLs
 confirmedURL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
@@ -90,12 +92,7 @@ confirmedRaw['id'] = getCountryCodes(confirmedRaw)
 confirmedRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country_zero_padded.csv',index=False)
 
 # New cases per day
-cols = [x for x in confirmedRaw.columns if x not in ['Country', 'id'] ]
-confirmedDaily = pd.DataFrame({'Country': confirmedRaw['Country'], 'id': confirmedRaw['id']})
-for i in range(1,len(cols)):
-	newDay = cols[i]
-	oldDay = cols[i-1]
-	confirmedDaily[newDay] = confirmedRaw[newDay] - confirmedRaw[oldDay]
+confirmedDaily = perDiem(confirmedRaw)
 
 confirmedDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_Confirmed_by_country_zero_padded.csv',index=False)
 
@@ -124,14 +121,12 @@ globaldeathsRaw["date"] = formatShortDates( globaldeathsRaw["date"] )
 globaldeathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date_zero_padded.csv',index=False)
 
 # New deaths per day
-cols = [x for x in deathsRaw.columns if x not in ['Country', 'id'] ]
-deathsDaily = pd.DataFrame({'Country': deathsRaw['Country'], 'id': deathsRaw['id']})
-for i in range(1,len(cols)):
-	newDay = cols[i]
-	oldDay = cols[i-1]
-	deathsDaily[newDay] = deathsRaw[newDay] - deathsRaw[oldDay]
+deathsDaily = perDiem( deathsRaw )
 
 deathsDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_deaths_by_country_zero_padded.csv',index=False)
 
-for k,v in dataToPageCorrespondence.items():
-	writeDataPage( site, k, v )
+if live == 1:
+	for k,v in dataToPageCorrespondence.items():
+		writeDataPage( site, k, v )
+else:
+	print('Not writing to wiki')

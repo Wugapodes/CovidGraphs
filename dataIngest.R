@@ -5,8 +5,8 @@ getwd()
 confirmed.raw = read.csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Confirmed.csv')
 
 confirmed.consolidated = confirmed.raw %>%
-  select(-Lat,-Long,-`Province/State`)%>%
-  rename(Country=`Country/Region`)%>%
+  select(-Lat,-Long,-`Province.State`)%>%
+  rename(Country=`Country.Region`)%>%
   group_by(`Country`)%>%
   summarise_all(sum)
 
@@ -23,8 +23,8 @@ write_csv(confirmed.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_Con
 deaths.raw = read.csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Deaths.csv')
 
 deaths.consolidated = deaths.raw %>%
-  select(-Lat,-Long,-`Province/State`)%>%
-  rename(Country=`Country/Region`)%>%
+  select(-Lat,-Long,-`Province.State`)%>%
+  rename(Country=`Country.Region`)%>%
   group_by(`Country`)%>%
   summarise_all(sum)
 

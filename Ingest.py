@@ -58,12 +58,11 @@ def getCountryCodes(data):
 				countryCodes[country] = 'XXX'
 			continue
 		countryCodes[country]=result[0].alpha_3
-
 	idArray = [countryCodes[x] for x in data["Country"]]
 	return idArray
 
 def perDiem( rawData ):
-	cols = [x for x in rawData.columns if x not in ['Country', 'id', 'Unnamed: 0'] ]
+	cols = [x for x in rawData.columns if x not in ['Country', 'id'] ]
 	daily = pd.DataFrame({'Country': rawData['Country'], 'id': rawData['id']})
 	for i in range(1,len(cols)):
 		newDay = cols[i]

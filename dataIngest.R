@@ -18,8 +18,8 @@ confirmed.global = confirmed.dates %>%
   group_by(date)%>%
   summarize_all(sum)
 
-write.csv(confirmed.global, '/data/project/wugbot/CovidGraphs/data/csse_global_confirmed_cases_by_date.csv')
-write.csv(confirmed.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country.csv')
+write.csv(confirmed.global, '/data/project/wugbot/CovidGraphs/data/csse_global_confirmed_cases_by_date.csv', row.names=FALSE)
+write.csv(confirmed.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country.csv', row.names=FALSE)
 
 deaths.raw = read.csv('/data/project/wugbot/CovidGraphs/data/csse_time_series_19-covid-Deaths.csv')
 
@@ -36,5 +36,5 @@ deaths.global = deaths.dates %>%
   group_by(date)%>%
   summarize_all(sum)
 
-write.csv(deaths.global, '/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date.csv')
-write.csv(deaths.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country.csv')
+write.csv(deaths.global, '/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date.csv', row.names=FALSE)
+write.csv(deaths.consolidated,'/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country.csv', row.names=FALSE)

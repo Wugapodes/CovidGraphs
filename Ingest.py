@@ -2,6 +2,7 @@ import pandas as pd
 import pycountry
 import subprocess
 import pywikibot
+import datetime as dt
 
 live = 1
 site = pywikibot.Site()
@@ -13,6 +14,28 @@ dataToPageCorrespondence = {
 	'data/csse_global_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/global Confirmed covid cases by date-csv',
 	'data/csse_global_deaths_by_date_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Cumulative deaths by date-csv'
 }
+
+def updateStartDates( live ):
+	page = pywikibot.Page( site, 'Template:Interactive_COVID-19_maps/common' )
+	if live != 1:
+		sandbox = pywikibot.Page( site, 'Template:Interactive_COVID-19_maps/common/botsandbox' )
+	text = page.text.split("\n")
+	for i in range(len(text)):
+		if 'WugBot!' not in text[i]:
+			continue
+		date = dt.date.today() - dt.timedelta(days=1)
+		if 'humandate' in text[i]:
+			humandate = date.strftime("%b %d").replace(" 0"," ")
+			text[i+1] = '      "init": "'+humandate+'",'
+		if 'computerdate' in text[i]:
+			computerdate = date.strftime("%m/%d/%y")
+			text[i+1] = '      "init": "'+computerdate+'",'
+	if live == 1:
+		page.text = "\n".join(text)
+		page.save('Updating map start date.')
+	else:
+		sandbox.text = "\n".join(text)
+		sandbox.save('Testing: Updating map start date.')
 
 def writeDataPage( site, dataFileName, pageName ):
 	prefix = '/data/project/wugbot/CovidGraphs/'
@@ -128,4 +151,6 @@ if live == 1:
 	for k,v in dataToPageCorrespondence.items():
 		writeDataPage( site, k, v )
 else:
-	print('Not writing to wiki')
+	print('Not writing to data pages')
+
+updateStartDates(live)

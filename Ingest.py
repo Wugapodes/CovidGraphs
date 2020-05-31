@@ -23,7 +23,7 @@ def updateStartDates( live ):
 	for i in range(len(text)):
 		if 'WugBot!' not in text[i]:
 			continue
-		date = dt.date.today() - dt.timedelta(days=1)
+		date = dt.date.today() - dt.timedelta(days=2)
 		if 'humandate' in text[i]:
 			humandate = date.strftime("%b %d").replace(" 0"," ")
 			text[i+1] = '      "init": "'+humandate+'",'

@@ -3,22 +3,29 @@ import pycountry
 import subprocess
 import pywikibot
 import datetime as dt
+from json import loads as load_json
 
-live = 1
+live = 0
+
+# Load site to run on
 site = pywikibot.Site()
-dataToPageCorrespondence = {
-	'data/csse_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Confirmed covid cases-csv',
-	'data/csse_Daily_New_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Daily confirmed covid cases-csv',
-	'data/csse_deaths_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Deaths by country-csv',
-	'data/csse_Daily_New_deaths_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Daily deaths by country-csv',
-	'data/csse_global_Confirmed_by_country_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/global Confirmed covid cases by date-csv',
-	'data/csse_global_deaths_by_date_zero_padded.csv': 'Template:Interactive COVID-19 maps/data/Cumulative deaths by date-csv'
-}
+lang = site.lang
+fam = site.family
+
+# Get i18n config
+configSite = pywikibot.Site('en','wikipedia')
+configPage = pywikibot.Page(configSite, 'User:WugBot/CovidConfig.json')
+
+config = load_json(configPage.text)
+
+dataToPageCorrespondence = config[lang]['data']
+templatePage = config[lang]['common']
+
 
 def updateStartDates( live ):
-	page = pywikibot.Page( site, 'Template:Interactive_COVID-19_maps/common' )
+	page = pywikibot.Page( site, templatePage )
 	if live != 1:
-		sandbox = pywikibot.Page( site, 'Template:Interactive_COVID-19_maps/common/botsandbox' )
+		sandbox = pywikibot.Page( site, templatePage+'/botsandbox' )
 	text = page.text.split("\n")
 	for i in range(len(text)):
 		if 'WugBot!' not in text[i]:
@@ -106,45 +113,31 @@ subprocess.call('/data/project/wugbot/CovidGraphs/dataIngest.R')
 
 # Confirmed
 confirmedRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country.csv')
-
 confirmedRaw.columns = formatDates(confirmedRaw.columns)
-
 confirmedRaw['id'] = getCountryCodes(confirmedRaw)
-
 confirmedRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Confirmed_by_country_zero_padded.csv',index=False)
 
 # New cases per day
 confirmedDaily = perDiem(confirmedRaw)
-
 confirmedDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_Confirmed_by_country_zero_padded.csv',index=False)
 
 # Global totals by date
 
 globalConfirmedRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_global_confirmed_cases_by_date.csv')
-
 globalConfirmedRaw["date"] = formatShortDates( globalConfirmedRaw["date"] )
-
 globalConfirmedRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_global_Confirmed_by_country_zero_padded.csv',index=False)
 
 # Deaths
 deathsRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country.csv')
-
 deathsRaw.columns = formatDates(deathsRaw.columns)
-
 deathsRaw['id'] = getCountryCodes(deathsRaw)
-
 deathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_deaths_by_country_zero_padded.csv',index=False)
-
 globaldeathsRaw = pd.read_csv('/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date.csv')
-
-
 globaldeathsRaw["date"] = formatShortDates( globaldeathsRaw["date"] )
-
 globaldeathsRaw.to_csv('/data/project/wugbot/CovidGraphs/data/csse_global_deaths_by_date_zero_padded.csv',index=False)
 
 # New deaths per day
 deathsDaily = perDiem( deathsRaw )
-
 deathsDaily.to_csv('/data/project/wugbot/CovidGraphs/data/csse_Daily_New_deaths_by_country_zero_padded.csv',index=False)
 
 if live == 1:
